@@ -1,0 +1,92 @@
+
+####Initialize indicator column and returns
+forecastReturns = numeric(nrow(snpDataFullNA))
+forecastLower = numeric(nrow(snpDataFullNA))
+forecastUpper = numeric(nrow(snpDataFullNA))
+Returns = NULL
+for (i in 3:5462){
+  #ARIMA Test
+  #### Returns equals the number of observed returns up to that date
+  if (i <= 100){
+    Returns = snpDataFullNA$LogReturns[1:i]
+    score = prattleFRC$FRC_Score[1:i]
+  }
+  else {
+    Returns = snpDataFullNA$LogReturn[(i-100):i]
+    score = prattleFRC$FRC_Score[(i-100):i]
+  }
+  ### Fit ARIMA to observed Returns
+  fit3 = auto.arima(Returns, approximation=FALSE,trace=FALSE, xreg = score)
+  ### point estimate for 1 day forecast
+  forecastReturns[i] = forecast(fit3, xreg = score[length(score)], h = 1)$mean
+  forecastUpper[i] = forecast(fit3, xreg = score[length(score)], h = 1)$upper[1,2]
+  forecastLower[i] = forecast(fit3, xreg = score[length(score)], h = 1)$lower[1,2]
+}
+snpDataFullNA$'forecastReturns' = forecastReturns
+snpDataFullNA$'forecastUpper95%' = forecastUpper
+snpDataFullNA$'forecastLower95%' = forecastLower
+View(snpDataFullNA)
+write.csv(snpDataFullNA, 'arimaxScoreForecasts.csv')
+
+forecastReturns = numeric(nrow(snpDataFullNA))
+forecastLower = numeric(nrow(snpDataFullNA))
+forecastUpper = numeric(nrow(snpDataFullNA))
+####Initialize indicator column and returns 
+Returns = NULL
+for (i in 3:5462){
+  #ARIMA Test
+  #### Returns equals the number of observed returns up to that date
+  if (i <= 100){
+    Returns = snpDataFullNA$LogReturns[1:i]
+    momentum3 = prattleFRC$prattleMomen.Momentum[1:i]
+  }
+  else {
+    Returns = snpDataFullNA$LogReturn[(i-100):i]
+    momentum3 = momentum$prattleMomen.Momentum[(i-100):i]
+  }
+  ### Fit ARIMA to observed Returns
+  fit3 = auto.arima(Returns, approximation=FALSE,trace=FALSE, xreg = momentum3)
+  ### point estimate for 1 day forecast
+  forecastReturns[i] = forecast(fit3, xreg = momentum3[length(momentum3)], h = 1)$mean
+  forecastUpper[i] = forecast(fit3, xreg = momentum3[length(momentum3)], h = 1)$upper[1,2]
+  forecastLower[i] = forecast(fit3, xreg = momentum3[length(momentum3)], h = 1)$lower[1,2]
+}
+snpDataFullNA$'forecastReturns' = forecastReturns
+snpDataFullNA$'forecastUpper95%' = forecastUpper
+snpDataFullNA$'forecastLower95%' = forecastLower
+View(snpDataFullNA)
+write.csv(snpDataFullNA, 'arimaxMomenForecasts.csv')
+
+forecastReturns = numeric(nrow(snpDataFullNA))
+forecastLower = numeric(nrow(snpDataFullNA))
+forecastUpper = numeric(nrow(snpDataFullNA))
+####Initialize indicator column and returns 
+Returns = NULL
+total = NULL
+for (i in 3:5462){
+  #ARIMA Test
+  #### Returns equals the number of observed returns up to that date
+  if (i <= 100){
+    Returns = snpDataFullNA$LogReturns[1:i]
+    momentum3 = prattleFRC$prattleMomen.Momentum[1:i]
+    score = prattleFRC$FRC_Score[1:i]
+  }
+  else {
+    Returns = snpDataFullNA$LogReturn[(i-100):i]
+    momentum3 = momentum$prattleMomen.Momentum[(i-100):i]
+    score = prattleFRC$FRC_Score[(i-100):i]
+    total = cbind(momentum3, score)    
+  }
+  ### Fit ARIMA to observed Returns
+  fit3 = auto.arima(Returns, approximation=FALSE,trace=FALSE, xreg = total)
+  ### point estimate for 1 day forecast
+  forecastReturns[i] = forecast(fit3, xreg = tail(total,1), h = 1)$mean
+  forecastUpper[i] = forecast(fit3, xreg = tail(total,1), h = 1)$upper[1,2]
+  forecastLower[i] = forecast(fit3, xreg = tail(total,1), h = 1)$lower[1,2]
+}
+snpDataFullNA$'forecastReturns' = forecastReturns
+snpDataFullNA$'forecastUpper95%' = forecastUpper
+snpDataFullNA$'forecastLower95%' = forecastLower
+
+View(snpDataFullNA)
+write.csv(snpDataFullNA, 'arimaxMomenScoreForecasts.csv')
