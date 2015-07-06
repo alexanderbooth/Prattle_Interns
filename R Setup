@@ -1,0 +1,37 @@
+setwd('C:/Users/Alexander/Documents/Summer 2015/Prattle/CSVs')
+library(forecast)
+`snpDataFull(import)` <- read.csv("snpDataFull(import).csv", stringsAsFactors=FALSE)
+snpDataFullNA = `snpDataFull(import)`
+#Calculate Log Returns Daily
+LogReturns = diff(log(snpDataFullNA$Adj.Close))
+#Delete obsolete rows/columns
+snpDataFullNA = snpDataFullNA[-1,]
+rownames(snpDataFullNA) = snpDataFullNA[,1]
+snpDataFullNA[,1] = NULL
+snpDataFullNA[,2] = NULL
+snpDataFullNA$LogReturns = LogReturns
+#Interpolate missing values of stuff
+snpDataFullNA$LogReturns[snpDataFullNA$LogReturns == 0] = NA
+snpDataFullNA$LogReturns = na.spline(snpDataFullNA$LogReturns)
+
+View(snpDataFullNA)
+
+prattleMomen <- read.csv("prattleMomen.csv", stringsAsFactors=FALSE)
+momentum = data.frame(prattleMomen$Date, prattleMomen$Momentum)
+rownames(momentum) = momentum[,1]
+momentum[,1] = NULL
+momentum$prattleMomen.Momentum[momentum$prattleMomen.Momentum == 0] = NA
+momentum$prattleMomen.Momentum = na.spline(momentum$prattleMomen.Momentum)
+View(momentum)
+
+prattleFRC <- read.csv("prattleFRC.csv", stringsAsFactors=FALSE)
+
+rownames(prattleFRC) = prattleFRC[,1]
+prattleFRC[,1] = NULL
+prattleFRC[,1] = NULL
+prattleFRC[,1] = NULL
+
+#Interpolation
+prattleFRC$FRC_Score[prattleFRC$FRC_Score == 0] = NA
+prattleFRC$FRC_Score = na.spline(prattleFRC$FRC_Score)
+View(prattleFRC)
